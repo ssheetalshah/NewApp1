@@ -59,7 +59,6 @@ public class SignInFreg extends Fragment implements
         });
 
 
-
     }
 
     @Override

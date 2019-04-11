@@ -1,6 +1,8 @@
 package com.ics.newapp;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,17 +15,29 @@ import android.provider.CalendarContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class DetailsActivity extends AppCompatActivity {
     TextView addRemin;
     Toolbar toolbar_prof;
     AlertDialog.Builder builder;
+    Calendar myCalendar;
+    ProgressDialog dialog;
+    DatePickerDialog.OnDateSetListener date;
+    private String dateFlage;
+    EditText dtdg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,102 +57,65 @@ public class DetailsActivity extends AppCompatActivity {
         });
 
         addRemin = (TextView)findViewById(R.id.addremin);
+        dtdg = (EditText)findViewById(R.id.dtdg);
         builder = new AlertDialog.Builder(this);
 
         addRemin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Calendar cal = Calendar.getInstance();
-                Intent intent = new Intent(Intent.ACTION_EDIT);
-                intent.setType("vnd.android.cursor.item/event");
-                intent.putExtra("beginTime", cal.getTimeInMillis());
-                intent.putExtra("allDay", false);
-                intent.putExtra("rrule", "FREQ=DAILY");
-                intent.putExtra("endTime", cal.getTimeInMillis()+60*60*1000);
-                intent.putExtra("title", "A Test Event from android app");
-                startActivity(intent);
-             //   addReminderInCalendar();
-                //Uncomment the below code to Set the message and title from the strings.xml file
-            //    builder.setMessage(R.string.dialog_message) .setTitle(R.string.dialog_title);
+                AlertDialog.Builder builder = new AlertDialog.Builder(DetailsActivity.this);
+                LayoutInflater inflater = getLayoutInflater();
+                builder.setTitle("Add a reminder");
+                View dialogLayout = inflater.inflate(R.layout.dialog_reminder, null);
+               // final RatingBar ratingBar = dialogLayout.findViewById(R.id.ratingBar);
+                builder.setView(dialogLayout);
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
-            /*    //Setting message manually and performing action on button click
-                builder.setMessage("Do you want to close this application ?")
-                        .setCancelable(false)
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                               addReminderInCalendar();
-                            }
-                        })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                //  Action for 'NO' Button
-                                dialog.cancel();
-                                Toast.makeText(getApplicationContext(),"you choose no action for alertbox",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                //Creating dialog box
-                AlertDialog alert = builder.create();
-                //Setting the title manually
-                alert.setTitle("AlertDialogExample");
-                alert.show();*/
+                    }
+                });
+                builder.show();
             }
         });
     }
 
-    private static void addToCalendar(Context ctx, final String title, final long dtstart, final long dtend) {
-        final ContentResolver cr = ctx.getContentResolver();
-        Cursor cursor ;
-        if (Integer.parseInt(Build.VERSION.SDK) >= 8 )
-            cursor = cr.query(Uri.parse("content://com.android.calendar/calendars"), new String[]{ "_id", "displayname" }, null, null, null);
-        else
-            cursor = cr.query(Uri.parse("content://calendar/calendars"), new String[]{ "_id", "displayname" }, null, null, null);
-        if ( cursor.moveToFirst() ) {
-            final String[] calNames = new String[cursor.getCount()];
-            final int[] calIds = new int[cursor.getCount()];
-            for (int i = 0; i < calNames.length; i++) {
-                calIds[i] = cursor.getInt(0);
-                calNames[i] = cursor.getString(1);
-                cursor.moveToNext();
+    private void picDate() {
+
+        myCalendar = Calendar.getInstance();
+
+        date = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, monthOfYear);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateLabel();
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-            builder.setSingleChoiceItems(calNames, -1, new DialogInterface.OnClickListener() {
+        };
 
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    ContentValues cv = new ContentValues();
-                    cv.put("calendar_id", calIds[which]);
-                    cv.put("title", title);
-                    cv.put("dtstart", dtstart );
-                    cv.put("hasAlarm", 1);
-                    cv.put("dtend", dtend);
+        dtdg.setOnClickListener(new View.OnClickListener() {
 
-                    Uri newEvent ;
-                    if (Integer.parseInt(Build.VERSION.SDK) >= 8 )
-                        newEvent = cr.insert(Uri.parse("content://com.android.calendar/events"), cv);
-                    else
-                        newEvent = cr.insert(Uri.parse("content://calendar/events"), cv);
+            @Override
+            public void onClick(View v) {
+                dateFlage = "1";
+                new DatePickerDialog(DetailsActivity.this, date, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+    }
 
-                    if (newEvent != null) {
-                        long id = Long.parseLong( newEvent.getLastPathSegment() );
-                        ContentValues values = new ContentValues();
-                        values.put( "event_id", id );
-                        values.put( "method", 1 );
-                        values.put( "minutes", 15 ); // 15 minutes
-                        if (Integer.parseInt(Build.VERSION.SDK) >= 8 )
-                            cr.insert( Uri.parse( "content://com.android.calendar/reminders" ), values );
-                        else
-                            cr.insert( Uri.parse( "content://calendar/reminders" ), values );
+    private void updateLabel() {
 
-                    }
-                    dialog.cancel();
-                }
-
-            });
-
-            builder.create().show();
+        if (dateFlage.equalsIgnoreCase("1")) {
+            String myFormat = "dd-MM-yyyy"; //In which you need put here
+            SimpleDateFormat sdf = new SimpleDateFormat(myFormat, new Locale("pt", "BR"));
+            dtdg.setText(sdf.format(myCalendar.getTime()));
+            dtdg.setTextColor(getResources().getColor(R.color.colorPrimary));
         }
-        cursor.close();
     }
 }
