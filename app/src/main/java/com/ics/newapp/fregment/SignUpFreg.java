@@ -10,7 +10,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 
 import com.ics.newapp.Navigation;
 import com.ics.newapp.R;
@@ -18,6 +20,9 @@ import com.ics.newapp.R;
 
 public class SignUpFreg extends Fragment {
     Button signup;
+    //  View view;
+    Spinner spin;
+    String[] country = {"Manufacturer", "Dealers", "Buyers"};
 
     @Nullable
     @Override
@@ -48,5 +53,14 @@ public class SignUpFreg extends Fragment {
 
             }
         });
+
+        //Getting the instance of Spinner and applying OnItemSelectedListener on it
+        spin = (Spinner)view.findViewById(R.id.spin);
+
+        //Creating the ArrayAdapter instance having the country list
+        ArrayAdapter aa = new ArrayAdapter(getActivity(), R.layout.custom_spinner , country);
+        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //Setting the ArrayAdapter data on the Spinner
+        spin.setAdapter(aa);
     }
 }

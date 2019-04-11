@@ -58,14 +58,7 @@ public class SignInFreg extends Fragment implements
             }
         });
 
-        //Getting the instance of Spinner and applying OnItemSelectedListener on it
-         spin = (Spinner)view.findViewById(R.id.spin);
 
-        //Creating the ArrayAdapter instance having the country list
-        ArrayAdapter aa = new ArrayAdapter(getActivity(), R.layout.custom_spinner , country);
-        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //Setting the ArrayAdapter data on the Spinner
-        spin.setAdapter(aa);
 
     }
 
