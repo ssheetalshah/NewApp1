@@ -67,6 +67,7 @@ public class DetailsActivity extends AppCompatActivity {
                 LayoutInflater inflater = getLayoutInflater();
                 builder.setTitle("Add a reminder");
                 View dialogLayout = inflater.inflate(R.layout.dialog_reminder, null);
+           //     picDate();
                // final RatingBar ratingBar = dialogLayout.findViewById(R.id.ratingBar);
                 builder.setView(dialogLayout);
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
